@@ -1,0 +1,692 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+%\usepackage[english]{babel}
+\usepackage[OT1]{fontenc}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{lmodern}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{eurosym}
+\usepackage{setspace}
+% \doublespacing
+\usepackage{comment}
+\usepackage{caption}
+\usepackage{pdflscape}
+\usepackage{subfigure}
+\usepackage{array}
+\usepackage{amsthm}
+\usepackage[bottom]{footmisc}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{listingsutf8}
+\usepackage{graphicx}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{stackengine}
+\newcommand\overlinebelow[1]{\stackunder[3pt]{$#1$}{\rule{.9ex}{.055ex}}}
+
+%\makeatletter
+%\renewcommand{\fnum@figure}{Gráfico \thefigure}
+%\makeatother
+%\makeatletter
+%\renewcommand{\fnum@table}{Tabla \thetable}
+\makeatother
+\usepackage{cases}
+ \setcounter{MaxMatrixCols}{20}
+
+
+\usepackage{mathrsfs}  
+\newcommand{\R}{\Rightarrow}  
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\E}{\mathbb{E}}
+
+
+
+\usepackage{enumitem}   % for customized enumerate/itemize labels
+
+
+
+
+
+
+
+
+\begin{document}
+
+\title{Trade Final Project}
+
+
+\author{Yoon, Yuxuan, Tomas}
+
+
+\date{Fall 2026}
+
+\maketitle
+\tableofcontents{}
+
+\large
+
+\newpage
+
+\section{Background: Bianchi (2011)}
+
+\textbf{Preferences:}
+\[
+\mathbb{E}_0\sum_{t=0}^{\infty}\beta^t u(c_t),
+\]
+where the consumption aggregator is
+\[
+c_t
+=
+\left[
+\omega (c_t^T)^{-\eta}
++
+(1-\omega)(c_t^N)^{-\eta}
+\right]^{-\frac{1}{\eta}}.
+\]
+
+\textbf{Budget constraint:}
+\[
+b_{t+1}+c_t^T+p_t^N c_t^N
+=
+(1+r)b_t+y_t^T+p_t^N y_t^N.
+\]
+
+\textbf{Credit constraint:}
+\[
+b_{t+1}
+\geq
+-\left(
+\kappa^N p_t^N y_t^N
++
+\kappa^T y_t^T
+\right).
+\]
+
+$$y_{i,t}^{T} =
+    y_{c,t}^T + \varepsilon_{i,t}^T  \quad 
+    i=\text{poor,rich}$$
+
+\textbf{Household optimality conditions:}
+\[
+\lambda_t=u'(c_t)\frac{\partial c_t}{\partial c_t^T},
+\]
+
+\[
+p_t^N
+=
+\frac{1-\omega}{\omega}
+\left(
+\frac{c_t^T}{c_t^N}
+\right)^{\eta+1},
+\]
+
+\[
+\lambda_t
+=
+\beta(1+r)\mathbb{E}_t[\lambda_{t+1}]
++
+\mu_t,
+\]
+
+\[
+b_{t+1}
++
+\kappa^N p_t^N y_t^N
++
+\kappa^T y_t^T
+\geq 0,
+\]
+
+\[
+\mu_t
+\left[
+b_{t+1}
++
+\kappa^N p_t^N y_t^N
++
+\kappa^T y_t^T
+\right]
+=0.
+\]
+
+\textbf{Market clearing:}
+\[
+c_t^N=y_t^N,
+\]
+
+\[
+c_t^T
+=
+y_t^T+(1+r)b_t-b_{t+1}.
+\]
+
+\textbf{Equilibrium price of non-tradables:}
+\[
+p_t^N
+=
+\frac{1-\omega}{\omega}
+\left(
+\frac{c_t^T}{y_t^N}
+\right)^{\eta+1}.
+\]
+
+\textbf{Recursive household problem:}
+\[
+V(b,B,y)
+=
+\max_{b',c^T,c^N}
+\left\{
+u(c(c^T,c^N))
++
+\beta\mathbb{E}_{y'|y}
+V(b',B',y')
+\right\},
+\]
+
+subject to
+\[
+b'
++
+p^N(B,y)c^N
++
+c^T
+=
+y^T+b(1+r)+p^N(B,y)y^N,
+\]
+
+\[
+b'
+\geq
+-\left[
+\kappa^N p^N(B,y)y^N
++
+\kappa^T y^T
+\right],
+\]
+
+\[
+B'=\Gamma(B,y).
+\]
+
+\textbf{Social planner's problem:}
+\[
+V(b,y)
+=
+\max_{b',c^T}
+\left\{
+u(c(c^T,y^N))
++
+\beta\mathbb{E}_{y'|y}V(b',y')
+\right\},
+\]
+
+subject to
+\[
+b'+c^T=y^T+b(1+r),
+\]
+
+\[
+b'
+\geq
+-\left[
+\kappa^N
+\frac{1-\omega}{\omega}
+\left(
+\frac{c^T}{y^N}
+\right)^{\eta+1}
+y^N
++
+\kappa^T y^T
+\right].
+\]
+
+\textbf{Planner's first-order conditions:}
+\[
+\lambda_t^{sp}
+=
+u_t^T
++
+\mu_t^{sp}\Psi_t,
+\]
+
+\[
+\lambda_t^{sp}
+=
+\beta(1+r)
+\mathbb{E}_t[\lambda_{t+1}^{sp}]
++
+\mu_t^{sp},
+\]
+
+where
+\[
+\Psi_t
+\equiv
+\kappa^N
+\frac{p_t^N c_t^N}{c_t^T}
+(1+\eta).
+\]
+
+\textbf{Key externality:}
+\[
+\underbrace{
+\beta(1+r)
+\mathbb{E}_t
+\left[
+\mu_{t+1}^{sp}\Psi_{t+1}
+\right]
+}_{\text{external marginal cost of borrowing}}
+\]
+
+\[
+\text{Private agents do not internalize }
+\beta(1+r)
+\mathbb{E}_t
+\left[
+\mu_{t+1}^{sp}\Psi_{t+1}
+\right],
+\]
+
+\[
+\boxed{
+\text{Competitive equilibrium}
+\;\Rightarrow\;
+\text{overborrowing}
+}
+\]
+
+\[
+\boxed{
+\text{Overborrowing}
+=
+\text{debt in the decentralized equilibrium}
+-
+\text{debt under the constrained-efficient allocation}.
+}
+\]
+
+\newpage
+
+
+
+\section{Setting}
+
+\begin{itemize}
+    \item \textbf{Agents:}
+\[
+i\in\{P,R\}
+\equiv
+\{\text{poor},\text{rich}\}.
+\]
+
+Let $\omega_i$ denote the population weight of household $i$, with $\omega_P+\omega_R=1$. For simplicity, we can set
+\[
+\omega_P=\omega_R=\frac{1}{2}.
+\]
+
+\item \textbf{Preferences:}
+
+Each household $i\in\{P,R\}$ has preferences given by
+\[
+\mathbb{E}_0
+\sum_{t=0}^{\infty}
+\beta^t u(c_{i,t}), \qquad c_{i,t}
+=
+\left[
+\omega (c_{i,t}^{T})^{-\eta}
++
+(1-\omega)(c_{i,t}^{N})^{-\eta}
+\right]^{-1/\eta}
+\]
+where the consumption basket is a CES aggregator of tradable and
+nontradable goods, with $\eta>-1$, $\omega\in(0,1)$
+
+\item \textbf{Endowments:}
+
+Each household receives tradable and nontradable endowments.
+
+Tradable income is given by
+\[
+y_{i,t}^{T}
+=
+y_{c,t}^{T}
++
+\varepsilon_{i,t}^{T},
+\qquad
+i\in\{P,R\},
+\]
+where $y_{c,t}^{T}$ is the common, aggregate component of tradable income and
+$\varepsilon_{i,t}^{T}$ is an idiosyncratic shock.
+
+We assume that nontradable income is common across households:
+\[
+y_{i,t}^{N}=y_t^{N},
+\qquad
+i\in\{P,R\}.
+\]
+
+\item \textbf{Debt:}
+
+Each household has access to a one-period, non-state-contingent bond
+denominated in units of tradable goods.
+
+$b_{i,t+1}$ denote household $i$'s bond holdings chosen at time $t$.
+
+The aggregate bond holdings are
+\[
+B_t
+=
+\sum_{i\in\{P,R\}}
+\omega_i b_{i,t}.
+\]
+With equal population weights,
+\[
+B_t
+=
+\frac{1}{2}b_{P,t}
++
+\frac{1}{2}b_{R,t}.
+\]
+
+\item \textbf{Budget constraint:}
+
+For each household $i$,
+\[
+b_{i,t+1}
++
+c_{i,t}^{T}
++
+p_t^N c_{i,t}^{N}
+=
+(1+r)b_{i,t}
++
+y_{i,t}^{T}
++
+p_t^N y_{i,t}^{N}.
+\]
+
+\item \textbf{Credit constraint:}
+
+Each household faces a collateral constraint:
+\[
+b_{i,t+1}
+\geq
+-
+\left(
+\kappa^N p_t^N y_{i,t}^{N}
++
+\kappa^T y_{i,t}^{T}
+\right).
+\]
+\end{itemize}
+
+
+
+\section{Household Problem}
+
+HH $i$ problem:
+\begin{align*}
+    \max_{\left\{
+c_{i,t}^{T},
+c_{i,t}^{N},
+b_{i,t+1}
+\right\}_{t=0}^\infty} \quad & \mathbb{E}_0
+\sum_{t=0}^{\infty}
+\beta^t u(c_{i,t}) \\ 
+\text{s.t.} \quad &  c_{i,t}
+=
+\left[
+\omega (c_{i,t}^{T})^{-\eta}
++
+(1-\omega)(c_{i,t}^{N})^{-\eta}
+\right]^{-1/\eta}  \\
+& b_{i,t+1} +c_{i,t}^{T}+p_t^N c_{i,t}^{N}=(1+r)b_{i,t}+y_{i,t}^{T}+p_t^N y_{i,t}^{N} \\ 
+& b_{i,t+1}
+\geq
+-
+\left(
+\kappa^N p_t^N y_{i,t}^{N}
++
+\kappa^T y_{i,t}^{T}
+\right)
+\end{align*}
+
+Let $\lambda_{i,t}$ denote the multiplier on the budget constraint and
+$\mu_{i,t}$ the multiplier on the borrowing constraint.
+
+FOC:
+\begin{align*}
+    [c_{i,t}^T]: \quad &  \lambda_{i,t} = u_{T}^i(t) \ \ \R \ \ \lambda_{i,t}
+=
+u'(c_{i,t})
+\frac{\partial c_{i,t}}{\partial c_{i,t}^{T}} = u'(c_{i,t}) \cdot (-1/\eta) \cdot \Big[ \cdot\Big]^{-1/\eta-1}\cdot \omega \cdot (-\eta) \cdot (c_{i,t}^{T})^{-\eta-1}
+\\  \\ 
+  [c_{i,t}^N]: \quad &  \lambda_{i,t}p_t^N = u_{N}^i(t) \ \ \R \ \ \lambda_{i,t}
+=\frac{u'(c_{i,t})
+\dfrac{\partial c_{i,t}}{\partial c_{i,t}^{N}}}{p_t^N} 
+= \frac{u'(c_{i,t}) \cdot (-1/\eta) \cdot \Big[ \cdot\Big]^{-1/\eta-1}\cdot (1-\omega) \cdot (-\eta) \cdot (c_{i,t}^{N})^{-\eta-1}}{p_t^N}  \\  \\ 
+[b_{i,t+1}]: \quad & \left\{\begin{array}{lcc}
+\lambda_{i,t}=\beta(1+r)\mathbb{E}_t\left[
+\lambda_{i,t+1}\right]+\mu_{i,t} \\  \\ 
+b_{i,t+1} + \kappa^N p_t^N y_{i,t}^{N} +\kappa^T y_{i,t}^{T}\geq 0 \\  \\ 
+\mu_{i,t}\geq 0 \\  \\ 
+\mu_{i,t} \left[b_{i,t+1}+\kappa^N p_t^N y_{i,t}^{N}+\kappa^T y_{i,t}^{T}\right]=0    
+\end{array}\right.
+\end{align*}
+
+Or, combining  $[c_{i,t}^T]$ with  $[c_{i,t}^N]$:
+\begin{align*}
+    [c_{i,t}^T,c_{i,t}^N]: \quad &  p_t^N
+=
+\frac{1-\omega}{\omega}
+\left(
+\frac{c_{i,t}^{T}}
+{c_{i,t}^{N}}
+\right)^{\eta+1}
+\\  \\  
+[b_{i,t+1}]: \quad & \left\{\begin{array}{lcc}
+\lambda_{i,t}=\beta(1+r)\mathbb{E}_t\left[
+\lambda_{i,t+1}\right]+\mu_{i,t} \\  \\ 
+b_{i,t+1} + \Big(\kappa^N p_t^N y_{i,t}^{N} +\kappa^T y_{i,t}^{T}\Big)\geq 0, \quad =0 \ \ \text{if $\mu_{i,t}>0$}  
+\end{array}\right.
+\end{align*}
+
+ 
+
+ 
+
+\section{Market clearing}
+
+\begin{itemize}
+    \item The nontradable goods market clears domestically:
+\[
+\sum_{i\in\{P,R\}}
+\omega_i c_{i,t}^{N}
+=
+\sum_{i\in\{P,R\}}
+\omega_i y_{i,t}^{N}.
+\]
+
+Since $y_{i,t}^{N}=y_t^N$:
+\[
+\sum_{i\in\{P,R\}}
+\omega_i c_{i,t}^{N}
+=
+y_t^N.
+\]
+
+\item Tradable goods market condition:
+\[
+\sum_{i\in\{P,R\}}
+\omega_i c_{i,t}^{T}
++
+B_{t+1}
+=
+(1+r)B_t
++
+Y_t^T,
+\]
+where 
+\[
+B_t \equiv \sum_{i\in\{P,R\}}\omega_i b_{i,t}.
+\]
+and, using $y_{i,t}^{T}=y_{c,t}^{T}+\varepsilon_{i,t}^{T}$:
+\[
+Y_t^T
+\equiv 
+\sum_{i\in\{P,R\}}
+\omega_i y_{i,t}^{T} = y_{c,t}^{T}
++
+\sum_{i\in\{P,R\}}
+\omega_i\varepsilon_{i,t}^{T}
+\]
+
+
+\end{itemize}
+
+
+
+\section{Equilibrium Definition - Decentralized RCE}
+
+
+We consider the optimization problem of each household in recursive form. 
+
+Aggregate bond holdings are given by $B=\omega_P b_P+\omega_R b_R$.
+
+The aggregate endowment vector is
+$$\mathbf{y} \equiv (y^N,y_c^T),$$
+and the vectors of the distribution of idiosyncratic income shocks and of bond holdings are
+$$\mathbf{e}\equiv (\varepsilon_P^T,\varepsilon_R^T) \quad , \quad \mathbf{b} \equiv (b_P,b_R) $$
+
+Thus, the current aggregate state is
+\[
+\mathbf{s}=\left(\mathbf{y},\mathbf{e},\mathbf{b}\right),
+\]
+Unlike in the representative-agent version of Bianchi (2011), aggregate
+bond holdings alone may not be sufficient to characterize the aggregate
+state. In particular, the distribution of individual bond holdings and
+idiosyncratic income shocks across households can affect aggregate
+consumption, the demand for nontradables, and therefore the equilibrium
+price of nontradables. Hence, the distribution of individual states is
+also relevant for forecasting future aggregate outcomes, which is crucial
+to form expectations of the price of nontradables.
+
+We denote by $\Gamma(\cdot)$ the perceived law of motion for the distribution of bond
+holdings. Given the current aggregate state $\mathbf{s}$, households perceive the distribution of bond holdings next period to be
+\[
+\mathbf{b}'=\Gamma(\mathbf{s}).
+\]
+The forecast price of nontradables is therefore given by a pricing function
+\[
+p^N=p^N(\mathbf{s}).
+\]
+
+The relevant individual state variables for household $i$ include its
+individual bond holdings and its idiosyncratic income shock.
+
+The recursive problem of household $i$ can be written as
+\begin{align*}
+V_i(b_i,\varepsilon_i^T;\mathbf{s})
+=
+\max_{b_i',\,c_i^T,\,c_i^N} \quad & u\left(c_i(c_i^T,c_i^N)\right) +\beta \, 
+\mathbb{E}_{\mathbf{y}',\,\varepsilon_i^{T\prime}\mid\mathbf{y},\,\varepsilon_i^T}\left[V_i\left(b_i',\varepsilon_i^{T\prime};\mathbf{s}'\right)\right] \\ 
+\text{s.t.} \quad &b_i'+p^N(\mathbf{s})c_i^N+c_i^T=y_i^T+b_i(1+r)+p^N(\mathbf{s})y^N, \quad \text{where \ } y_i^T=y_c^T+\varepsilon_i^T \\ 
+& b_i'\geq-\left(\kappa^N p^N(\mathbf{s})y^N+\kappa^T y_i^T\right) \\ 
+& \mathbf{b}'=\Gamma(\mathbf{s})
+\end{align*}
+
+
+The solution to the household problem yields decision rules for individual
+bond holdings, tradable consumption and nontradable consumption
+\[
+\widehat b_i(b_i,\varepsilon_i^T;\mathbf{s}), \quad 
+\widehat c_i^T(b_i,\varepsilon_i^T;\mathbf{s}), \quad 
+\widehat c_i^N(b_i,\varepsilon_i^T;\mathbf{s}),
+\qquad
+i\in\{P,R\},
+\]
+with associated value functions
+\[
+V_i(b_i,\varepsilon_i^T;\mathbf{s}).
+\]
+
+The household optimization problem induces a mapping from the perceived
+law of motion for the distribution of bond holdings to an actual law of motion,
+given by the individual households' choices $\Big[\widehat b_P(b_P,\varepsilon_P^T;\mathbf{s}) \ \ , \ \
+\widehat b_R(b_R,\varepsilon_R^T;\mathbf{s})\Big]$.
+In a rational expectations equilibrium, the perceived and actual laws of
+motion must coincide.
+
+
+\ 
+
+\ 
+
+\ 
+
+\textbf{Definition (Decentralized Recursive Competitive Equilibrium)}
+
+A decentralized recursive competitive equilibrium for this two-agent SOE is defined by a pricing function
+\[
+p^N(\mathbf{s}),
+\]
+a perceived law of motion
+\[
+\Gamma(\mathbf{s}),
+\]
+and decision rules
+\[
+\Big\{ \ 
+\widehat b_i(b_i,\varepsilon_i^T;\mathbf{s}) \ , \ 
+\widehat c_i^T(b_i,\varepsilon_i^T;\mathbf{s}) \ , \ 
+\widehat c_i^N(b_i,\varepsilon_i^T;\mathbf{s}) \ 
+\Big\}_{i\in\{P,R\}},
+\]
+with associated value functions
+\[
+\left\{
+V_i(b_i,\varepsilon_i^T;\mathbf{s})
+\right\}_{i\in\{P,R\}},
+\]
+such that the following conditions hold:
+
+\begin{enumerate}
+
+\item[(i)] \textbf{Household optimization:}
+For each $i\in\{P,R\}$,
+\[
+\left\{
+\widehat b_i(b_i,\varepsilon_i^T;\mathbf{s}),
+\widehat c_i^T(b_i,\varepsilon_i^T;\mathbf{s}),
+\widehat c_i^N(b_i,\varepsilon_i^T;\mathbf{s}),
+V_i(b_i,\varepsilon_i^T;\mathbf{s})
+\right\}
+\]
+solve the recursive optimization problem of household $i$ for given
+$p^N(\mathbf{s})$ and $\Gamma(\mathbf{s})$.
+
+\item[(ii)] \textbf{Rational expectations condition:}
+The perceived law of motion for the distribution of bond holdings is consistent
+with the actual law of motion:
+\[
+\Gamma(\mathbf{s})
+= \Big[ \ \widehat b_P(b_P,\varepsilon_P^T;\mathbf{s})\ , \ 
+\widehat b_R(b_R,\varepsilon_R^T;\mathbf{s}) \ \Big]
+\]
+
+
+\item[(iii)] \textbf{Markets clear:}
+
+\begin{align*}
+    [MC.N]: \quad & \sum_{i\in\{P,R\}}\omega_i \cdot \widehat c_i^N(b_i,\varepsilon_i^T;\mathbf{s})=y^N \\
+     [MC.T]: \quad &  \underbrace{\sum_{i\in\{P,R\}}\omega_i \cdot \widehat b_i^N(b_i,\varepsilon_i^T;\mathbf{s})}_{B'} +\sum_{i\in\{P,R\}}\omega_i \cdot \widehat c_i^T(b_i,\varepsilon_i^T;\mathbf{s})=B(1+r)+Y^T
+\end{align*}
+\end{enumerate}
+
+ 
+
+
+\end{document}

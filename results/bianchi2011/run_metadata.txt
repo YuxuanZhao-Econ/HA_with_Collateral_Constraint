@@ -1,0 +1,18 @@
+Bianchi (2011) Julia replication
+Julia version: 1.12.4
+Run timestamp (Unix seconds): 1.790195823865e9
+Bond grid: 800 points on [-1.02, -0.2]
+Joint income states: 16
+Parameters: (sigma = 2.0, eta = 0.20481927710843384, beta = 0.906, omega = 0.307, kappaT = 0.3235, kappaN = 0.3235, r = 0.04, R = 1.04)
+RNG: Xoshiro; seed: 2011
+Retained periods: 80000; burn-in: 5000
+DE and SP solver tolerance: 2e-10
+DE outflow crisis threshold: 0.06482099224544267
+Original proc_shock.mat SHA-256: 996b0d5ec696610f1c94b5b02bbabaad68cdfc0251cca80dbdd60b48e7d57b71
+Source SHA-256 Bianchi2011.jl: e96570b21feeb3481558d4691df11920278572551033ac9b68a1b3a9b18c08b0
+Source SHA-256 model.jl: aec07ba07f7f0c97bda6f7afcba8bf1b05c2f86e8d978c6a6ada0fc8ca5dba30
+Source SHA-256 plots.jl: 579bf5de0d36a0a8415024c858f181182a3636d0d15bd9be0675f456a2cd2e4a
+Source SHA-256 shocks.jl: b3e33abee5661344694ba97569fae78135df5554f438b5209e9a7887f7954c34
+Source SHA-256 simulation.jl: 49079ee3d5e0fcf3fade5db36ce199f61577a6a1db909771673f8f8229a69a32
+Source SHA-256 solvers.jl: 188c3d8f565931a56fe258ff9c1ccd507596661b96ad42dc885553b79edcee3d
+Source SHA-256 validation.jl: f8e2445d8fe2943a4a219de23425a886d983b548b60f361f363ab84f3d1dff1a

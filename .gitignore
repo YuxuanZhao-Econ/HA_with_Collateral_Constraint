@@ -1,0 +1,36 @@
+# Local experiments, numerical checks, and temporary outputs
+/[Ee][Xx][Pp][Ee][Rr][Ii][Mm][Ee][Nn][Tt]/
+/[Ee][Xx][Pp][Ee][Rr][Ii][Mm][Ee][Nn][Tt][Ss]/
+/[Tt][Ee][Ss][Tt]/
+/[Tt][Ee][Ss][Tt][Ss]/
+/[Tt][Mm][Pp]/
+
+# Workspace metadata
+.agents/
+.codex/
+
+# Jupyter and Python generated files
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Julia local environment/runtime files
+*.ji
+*.ji.pidfile
+
+# LaTeX build intermediates (keep source files and final PDFs)
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+
+# Editor and operating-system files
+*.asv
+*~
+.DS_Store
+Thumbs.db
+
