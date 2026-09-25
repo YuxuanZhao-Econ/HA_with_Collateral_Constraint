@@ -22,10 +22,14 @@ function policy_figure(m,de,sp;s=6)
         xlabel="Current bond holdings b",ylabel="Next-period holdings b'",
         title="Borrowing decisions",legend=:topleft,xlims=(-1.02,-0.60),ylims=(-1.04,-0.58))
     plot!(a,m.b,m.b;color=:gray,linewidth=1,linestyle=:dot,label="45-degree line")
-    b=two_policies(m.b,de.price[:,s],sp.price[:,s];
+    b=two_policies(m.b,de.c[:,s],sp.c[:,s];
+        xlabel="Current bond holdings b",ylabel="Tradable consumption cᵀ (T units)",
+        title="Consumption policy",legend=false,xlims=(-1.02,-0.60))
+    c=two_policies(m.b,de.price[:,s],sp.price[:,s];
         xlabel="Current bond holdings b",ylabel="Nontradable price (T units)",
         title="Collateral price",legend=false,xlims=(-1.02,-0.60))
-    plot(a,b;layout=(1,2),size=(1080,430),
+    plot(a,b,c;layout=(1,3),size=(1500,480),
+        left_margin=10*Plots.mm,bottom_margin=10*Plots.mm,
         plot_title=@sprintf("Original shock state %d: yT = %.4f, yN = %.4f",s,m.yT[s],m.yN[s]))
 end
 
@@ -59,7 +63,7 @@ end
 function welfare_figure(m,wt;s=6)
     plot_defaults()
     plot(m.b,100wt.welfare[:,s];color=SP_COLOR,label=false,xlims=(-1.02,-0.6),
-        xlabel="Current bond holdings b",ylabel="Percent of permanent consumption",
+        xlabel="Current bond holdings b",ylabel="100γ(b, y) (%)",
         title="Welfare gain from correcting the externality",size=(880,460),
         plot_title="Switch from DE to planner, including transition costs; shock state 6")
 end
