@@ -1,154 +1,156 @@
 # Heterogeneous Agents with Collateral Constraints
 
-This project studies a heterogeneous-household extension of Bianchi (2011),
-*Overborrowing and Systemic Externalities in the Business Cycle*. The intended
-environment is a small open economy with tradable and nontradable goods,
-household income risk, and borrowing limits tied to the market value of income.
+This repository studies collateral-constrained borrowing in small open economies
+through Julia notebooks. It begins with the representative-household model of
+Bianchi (2011) and extends the framework to heterogeneous households with
+individual income risk and aggregate endowment shocks.
 
-The first research notebook, [Bianchi2011.ipynb](notebooks/Bianchi2011.ipynb),
-replicates the original representative-household model before introducing
-heterogeneity. It defines the model and equilibrium, explains the algorithms,
-and compares policies, crises, welfare, and macroprudential instruments with
-the published results.
+The project is a teaching and research companion. Each notebook states the
+economic environment and recursive equilibrium, explains its numerical method,
+and presents policy functions, simulations, and economic and numerical checks.
+Reusable numerical functions are kept in separate model directories.
 
 ## Requirements
 
-The project uses Julia 1.12. `Project.toml` and `Manifest.toml` record the
-environment based on the companion `sequence_space_jacobian` project, with
-the replication's standard-library dependencies added. The manifest uses
-Julia 1.12.4. Direct dependencies are `IJulia`, `Plots`, `LinearAlgebra`,
-`Printf`, `Random`, `Statistics`, and `SHA`.
-
+The notebooks use Julia 1.12. The reproducible environment is recorded in
+`Project.toml` and `Manifest.toml`; the recorded runs use Julia 1.12.4.
 From the repository root, install the pinned dependencies with:
 
 ```bash
 julia --project=. -e "using Pkg; Pkg.instantiate(); Pkg.precompile()"
 ```
 
-Alternatively, from a Julia session started in the repository root:
+Alternatively, from a Julia session:
 
 ```julia
 using Pkg
 Pkg.activate(".")
 Pkg.instantiate()
+```
+
+The dependencies include `IJulia`, `Plots`, `Roots`, and the standard libraries
+listed in `Project.toml`. To open the project in Jupyter:
+
+```julia
 using IJulia
 notebook(dir=pwd())
 ```
 
+Open either notebook with the Julia 1.12 kernel and use **Run All**. Each notebook
+activates the repository environment and loads its numerical helpers from
+`src/` using project-root-relative paths. MATLAB is not required to run the
+Julia notebooks.
+
 ## Project Structure
 
-```text
-HA_with_Collateral_Constraint/
-|-- README.md
-|-- Project.toml
-|-- Manifest.toml
-|-- .gitignore
-|-- notebooks/
-|   `-- Bianchi2011.ipynb         Original-model replication and exposition
-|-- src/
-|   |-- README.md               Source organization conventions
-|   |-- bianchi2011/             Model, solvers, simulation, checks, and plots
-|   `-- ha_with_collateral_constraint/   Reserved for the HA extension
-|-- figures/bianchi2011/         Notebook-generated PNG and SVG figures
-|-- results/bianchi2011/         Comparison tables and execution provenance
-|-- reference/                  Papers and original replication materials
-|-- main.tex                    Existing model draft
-|-- Trade_Final_Project.pdf     Existing compiled draft
-|-- experiments/               Local experiments; ignored by Git
-|   `-- consumption_saving/     EGM, borrowing limits, and asset-grid boundary experiments
-|-- test/                       Local numerical checks; ignored by Git
-`-- tmp/                        Temporary files and logs; ignored by Git
-```
+- [notebooks/Bianchi2011.ipynb](notebooks/Bianchi2011.ipynb)
+  - representative-household small open economy with tradable and nontradable goods
+  - decentralized equilibrium and constrained social planner
+  - borrowing and consumption policies, collateral prices, and crisis dynamics
+  - consumption-equivalent welfare gains and macroprudential instruments
+  - equilibrium residuals, bond-grid refinement, and simulation sensitivity
 
-The subsequent HA notebook, `notebooks/HA_with_Collateral_Constraint.ipynb`,
-remains reserved. Its functions will live in the corresponding lowercase
-source directory. Local ignored directories can be recreated after cloning:
+- [notebooks/HA_Collateral_Constraint.ipynb](notebooks/HA_Collateral_Constraint.ipynb)
+  - heterogeneous households with IID individual income risk and aggregate shocks
+  - Euler time iteration with collateral constraints
+  - market clearing and simulation of the full asset distribution
+  - aggregate forecasting rules based on the current shock and mean assets
+  - baseline, refinement, and rare-state coverage experiments
+  - held-out forecast errors and independent equilibrium Euler checks
 
-```julia
-mkpath.(joinpath.(pwd(), ["experiments", "test", "tmp"]))
-```
+- `src/`: model implementations (see [source layout](src/README.md))
+  - `bianchi2011/Bianchi2011.jl`: representative-household replication
+  - `ha_collateral_constraint/HACollateralConstraint.jl`: heterogeneous-household model
+  - supporting files separate model inputs, household solvers, equilibrium,
+    simulation, validation, and plotting
 
-The local [consumption-saving experiments](experiments/consumption_saving/README.md)
-collect the fixed-interest-rate household exercises, their
-[discussion summary](experiments/consumption_saving/DISCUSSION.md), Julia scripts,
-figures, and numerical checks. These are partial-equilibrium household problems,
-not an RBC model or the Bianchi replication. This ignored directory is available
-locally and is not included in a Git clone.
+- `figures/`
+  - exported notebook figures, organized by model
 
-## Notebook and Source Workflow
+- `results/`
+  - small CSV tables with simulation statistics, welfare, and numerical diagnostics
+  - run metadata recording settings and source provenance
 
-The main notebook first describes the model, including timing, household
-states and choices, income processes, collateral constraints, and equilibrium.
-It then explains the numerical algorithm before presenting computations
-and diagnostics. Calibration choices and research exercises remain visible in
-the notebook.
+- `reference/`
+  - Bianchi's article, online appendix, and supplied MATLAB replication package
+  - the project's LaTeX model draft and compiled PDF
 
-Reusable function definitions belong in `src/`. Following the companion
-project, the model directory uses the lowercase notebook filename without the
-`.ipynb` extension. The replication entry file is
-`src/bianchi2011/Bianchi2011.jl`. See [source layout](src/README.md).
+- `Project.toml` and `Manifest.toml`
+  - direct dependencies and pinned transitive dependency versions
 
-The notebook locates and activates the repository's `Project.toml`, then
-loads source files using paths relative to that root. Experiments, checks, and
-temporary outputs belong in the corresponding local directories rather than
-the main notebook's source directory.
+Local checks, exploratory experiments, and temporary solver caches belong in
+`test/`, `experiments/`, and `tmp/`. These directories, including uppercase and
+mixed-case variants, are excluded from Git and GitHub commits. Their contents
+remain on disk and are not required in a fresh clone. The HA notebook recreates
+missing caches and reuses them only when source and configuration checks match.
 
-## Replication Method and Scope
+CSV files in `results/` preserve numerical tables for comparison and reuse
+without rerunning the model. They are outputs, not solver inputs. The Bianchi
+CSVs are earlier exported snapshots: its current notebook recomputes the
+statistics on screen but does not refresh those files or their metadata.
+The HA notebook exports its diagnostics, iteration history, and metadata when
+its final results cell runs.
 
-The notebook uses the unrounded calibration and 16-state joint endowment
-process from the supplied MATLAB package. Its main bond grid has 800 points,
-as in the online appendix. Both competitive equilibrium and the constrained
-planner use Euler time iteration: each iteration fixes expected marginal
-values at the old bond choice, calculates the borrowing limit from the old
-price, chooses consumption, and updates policies and prices. The planner also
-updates the collateral multiplier. Future aggregate shocks enter all
-conditional expectations.
+## Method
 
-The notebook reports:
+The Bianchi notebook uses the supplied structural parameters and 16-state joint
+endowment process. DE and planner policies are computed by Euler time iteration:
+use the preceding policies to form expected marginal values, check the
+collateral constraint, update consumption and bonds, and recompute equilibrium
+prices. The planner internalizes the effect of consumption on collateral
+prices and updates the constraint multiplier as well.
 
-- Borrowing policies, collateral prices, and the ergodic debt distribution.
-- Crisis frequencies and unconditional moments compared with the paper.
-- The matched median-crisis counterfactual from footnote 12.
-- Consumption-equivalent welfare gains and implied debt taxes.
-- Grid and off-grid residuals, 400/800/1600-point comparisons, and simulations
-  with multiple fixed seeds.
+The HA notebook follows a household-solution and aggregate-forecast iteration:
 
-The default simulation keeps 80,000 observations after a 5,000-period burn-in.
-Longer robustness simulations keep 500,000 observations for each seed.
-Figures and small result tables are regenerated by running all notebook cells.
-Timing depends on compilation and hardware; the 1,600-point planner check
-allocates roughly 0.7 GB for its utility and marginal-utility tables.
+1. Guess the nontradable-price and next-period mean-asset forecasting rules.
+2. Solve household consumption and saving policies given those rules.
+3. Simulate aggregate shocks, clearing the nontradable market at each date.
+4. Propagate the full asset distribution using the household choices.
+5. Refit and damp the forecasting rules, then repeat until the projected rules converge.
+6. Validate the resulting allocation on a held-out shock path, including
+   independently re-cleared future markets for the Euler checks.
 
-This is an equation-based quantitative replication, not a bitwise MATLAB port.
-The [source audit](src/bianchi2011/README.md) records discrepancies between the
-paper, appendix, and distributed script, including the planner loop and crisis
-event comparison. Remaining published-target gaps are reported without
-recalibration. The fixed-tax exercise and parameter-sensitivity table are
-outside this baseline. Household heterogeneity is the next stage.
+The notebooks distinguish policy-iteration convergence from equilibrium
+accuracy. Budget constraints, collateral feasibility, market clearing,
+distribution mass, numerical boundaries, and interpolation or forecasting
+errors are checked separately.
 
-Open the notebook with the Julia 1.12 kernel and use **Run All**. Optionally,
-Python with `nbconvert` and `nbclient` can execute it from the repository root:
+## Interpretation
 
-```bash
-python -m jupyter nbconvert --execute --to notebook --inplace --ExecutePreprocessor.timeout=1800 notebooks/Bianchi2011.ipynb
-```
+Aggregate uncertainty is represented by a Markov process. The Bianchi notebook
+compares DE and planner outcomes under common shock paths, including the
+transition costs of adopting the planner policy.
 
-Notebook execution does not require SciPy or MATLAB: the original shock file
-has a full-precision Julia export and its source hash is checked at runtime.
+In the HA experiment, households forecast aggregate outcomes using the current
+aggregate shock and mean assets. The simulation retains the full asset
+distribution, but households do not condition their forecasts on that entire
+distribution. Convergence of the projected forecasting rules therefore does
+not establish an exact full-distribution rational-expectations equilibrium.
+The current final candidate does not pass the notebook's 1% maximum-error
+screen; the remaining approximation errors are reported explicitly.
 
-## Version Control
+## Scope and Extensions
 
-Track the notebook with executed outputs, source files, documentation, selected
-figures, small result tables, and both Julia environment files. The `.gitignore` excludes local experiment,
-test, and temporary directories, including singular/plural and uppercase
-variants, as well as notebook checkpoints and generated runtime files.
+- The Bianchi notebook is an equation-based quantitative replication. Its
+  parameters and shock arrays come from the supplied MATLAB package, but
+  numerical updates and simulation settings differ. The appendix describes
+  value function iteration for the planner, while the Julia implementation
+  iterates its first-order conditions. See the
+  [source audit](src/bianchi2011/README.md) for the implementation differences.
+- Actual MATLAB execution results have not been verified. Local Julia
+  experiments isolating a change in the planner multiplier are not executions
+  of the complete MATLAB script.
+- The HA notebook currently solves a decentralized-equilibrium approximation.
+  Individual income-risk parameters are illustrative. An HA planner and
+  optimal macroprudential policy are outside the current implementation.
+- Improving the HA forecast approximation and validating its accuracy remain
+  necessary before drawing precise quantitative policy conclusions. See the
+  [HA algorithm and accuracy notes](src/ha_collateral_constraint/README.md).
 
-The existing LaTeX draft, compiled PDF, reference papers, and original MATLAB
-replication package remain in their current locations.
-
-## References
+## References and Resources
 
 - Bianchi, J. (2011). Overborrowing and Systemic Externalities in the Business
   Cycle. *American Economic Review*, 101(7), 3400-3426.
   [Article](https://doi.org/10.1257/aer.101.7.3400).
-- Local paper, online appendix, and MATLAB replication code: `reference/`.
+- Local article, online appendix, and original MATLAB replication materials:
+  `reference/`.

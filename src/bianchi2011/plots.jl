@@ -105,7 +105,9 @@ function event_figure(event,pair)
     for pl in (a,b,c)
         vline!(pl,[0];color=:gray,linestyle=:dot,linewidth=1,label=false)
     end
-    plot(a,b,c;layout=(1,3),size=(1250,430),plot_title="Median DE crisis: same debt at t = -2 and same shocks")
+    plot(a,b,c;layout=(1,3),size=(1250,450),
+        left_margin=10*Plots.mm,bottom_margin=10*Plots.mm,
+        plot_title="DE crisis with median net capital outflow")
 end
 
 function save_figure(plt,root,name)
