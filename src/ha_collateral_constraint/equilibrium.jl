@@ -133,6 +133,17 @@ function observed_forecast_distance(sim,a,b)
                 abs(bond_forecast(a,sim.z[t],sim.B[t])-bond_forecast(b,sim.z[t],sim.B[t]))) for t in 1:sim.T)
 end
 
+function within_state_r2(y,yhat,z,nz)
+    tss=0.0
+    for state in 1:nz
+        ids=findall(==(state),z)
+        isempty(ids) && continue
+        observed=y[ids]
+        tss+=sum(abs2,observed.-mean(observed))
+    end
+    tss>0 ? 1-sum(abs2,y.-yhat)/tss : NaN
+end
+
 function solve_equilibrium(m;T=2400,burn=400,seed=20260925,maxiter=35,
                            damping=0.25,tol=2e-4,initial=nothing,verbose=true)
     f=initial===nothing ? initial_forecast(m) : regrid_forecast(m,initial)
@@ -154,10 +165,15 @@ function solve_equilibrium(m;T=2400,burn=400,seed=20260925,maxiter=35,
         global_update=forecast_distance(m,f,proposed)
         bpmax=maximum(abs.(sim.Bnext.-sim.Bpred))
         ppmax=maximum(abs.(sim.price./sim.ppred.-1))
+        r2_H=within_state_r2(sim.Bnext,sim.Bpred,sim.z,m.nz)
+        r2_logP=within_state_r2(log.(sim.price),log.(sim.ppred),sim.z,m.nz)
         push!(history,(;iteration=it,hh_iterations=hh.iterations,hhtol,update,global_update,bpmax,ppmax,
-                        meanB=mean(sim.B),binding=mean(sim.binding),min_count=minimum(counts)))
-        verbose && @printf("KS %2d | HH %4d | update %.3e | B err %.3e | price err %.3e | mean B %.5f\n",
-            it,hh.iterations,update,bpmax,ppmax,mean(sim.B))
+                        r2_H,r2_logP,meanB=mean(sim.B),binding=mean(sim.binding),min_count=minimum(counts)))
+        if verbose
+            @printf("KS %2d | R2 H %.6f | R2 logP %.6f | update %.3e\n",
+                it,r2_H,r2_logP,update)
+            flush(stdout)
+        end
         if update<tol || it==maxiter
             return (;m,forecast=f,hh,simulation=sim,history,converged=update<tol)
         end

@@ -50,7 +50,8 @@ candidate outer stopping point is rechecked with tightly converged households.
 Forecast convergence is measured on fitting states; changes across the entire
 grid are reported separately. The notebook explains each step, the three asset
 grids, all calibration values and their original targets, and the numerical
-settings without requiring another notebook as a reference.
+algorithm without requiring another notebook as a reference. Implementation
+settings remain in the source files.
 
 The third experiment adds aggregate-grid points near the collateral-sensitive
 debt region and enriches the regression data. It selects actual simulated
