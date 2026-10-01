@@ -51,12 +51,12 @@ Julia notebooks.
   - equilibrium residuals, bond-grid refinement, and simulation sensitivity
 
 - [notebooks/HA_Collateral_Constraint.ipynb](notebooks/HA_Collateral_Constraint.ipynb)
-  - heterogeneous households with IID individual income risk and aggregate shocks
+  - heterogeneous households with IID individual income risk and a 5×5 aggregate chain
   - Euler time iteration with collateral constraints
   - market clearing and simulation of the full asset distribution
-  - aggregate forecasting rules based on the current shock and mean assets
-  - baseline, refinement, and rare-state coverage experiments
-  - held-out forecast errors and independent equilibrium Euler checks
+  - a 20-coefficient cubic next-mean-asset rule H(z,B), with endpoint tangent tails and prices implied by aggregate resources
+  - one configuration: 300 shared household/distribution nodes and 160 mean-asset nodes
+  - simulated economy, household policies, aggregate rules, and generalized impulse responses
 
 - `src/`: model implementations (see [source layout](src/README.md))
   - `bianchi2011/Bianchi2011.jl`: representative-household replication
@@ -69,7 +69,11 @@ Julia notebooks.
 
 - `results/`
   - small CSV tables with simulation statistics, welfare, and numerical diagnostics
-  - run metadata recording settings and source provenance
+  - the current HA GIRF export and historical experiment outputs
+
+- `Resources/ha_collateral_constraint/`
+  - fixed forecast breakpoints, `forecast_breaks_gh5.csv`, and the reusable Julia equilibrium cache, `equilibrium_gh5_spline20_T48000.jls`
+  - generated `.jls` files are kept locally and excluded from Git
 
 - `reference/`
   - Bianchi's article, online appendix, and supplied MATLAB replication package
@@ -78,18 +82,25 @@ Julia notebooks.
 - `Project.toml` and `Manifest.toml`
   - direct dependencies and pinned transitive dependency versions
 
-Local checks, exploratory experiments, and temporary solver caches belong in
+Local checks, exploratory experiments, and temporary files belong in
 `test/`, `experiments/`, and `tmp/`. These directories, including uppercase and
 mixed-case variants, are excluded from Git and GitHub commits. Their contents
-remain on disk and are not required in a fresh clone. The HA notebook recreates
-missing caches and reuses them only when source and configuration checks match.
+remain on disk and are not required in a fresh clone.
+
+In Section 7 of the HA notebook, `FORCE_COMPUTE=false` loads a compatible cached
+equilibrium or computes and saves one if needed. Set it to `true` to recompute.
+Compatibility checks cover the model, solver settings, Julia version, numerical
+source, and pinned dependencies. Editing figures does not invalidate the
+equilibrium cache. Only converged results are saved.
 
 CSV files in `results/` preserve numerical tables for comparison and reuse
 without rerunning the model. They are outputs, not solver inputs. The Bianchi
 CSVs are earlier exported snapshots: its current notebook recomputes the
 statistics on screen but does not refresh those files or their metadata.
-The HA notebook exports its diagnostics, iteration history, and metadata when
-its final results cell runs.
+The HA notebook currently exports the GIRF responses, the baseline and shocked
+constrained-household shares, and their Monte Carlo standard errors. Existing
+HA diagnostics and iteration-history CSVs are historical outputs; the current
+notebook does not refresh them.
 
 ## Method
 
@@ -102,18 +113,25 @@ prices and updates the constraint multiplier as well.
 
 The HA notebook follows a household-solution and aggregate-forecast iteration:
 
-1. Guess the nontradable-price and next-period mean-asset forecasting rules.
-2. Solve household consumption and saving policies given those rules.
+1. Guess H(z,B), a fixed 20-coefficient cubic next-period mean-asset rule with
+   tangent-line tails, and derive its price forecast
+   from the tradable resource constraint and nontradable market clearing.
+2. Solve household consumption and saving policies given H and its implied prices.
 3. Simulate aggregate shocks, clearing the nontradable market at each date.
 4. Propagate the full asset distribution using the household choices.
-5. Refit and damp the forecasting rules, then repeat until the projected rules converge.
-6. Validate the resulting allocation on a held-out shock path, including
-   independently re-cleared future markets for the Euler checks.
+5. Refit and damp H using only observations on the simulated path. Repeat until
+   the changes in H and its implied log price on those states are below 1e-3.
+6. Display a separate simulation, household policy slices, fitted aggregate
+   curves with state observation counts, and a generalized impulse response.
 
-The notebooks distinguish policy-iteration convergence from equilibrium
-accuracy. Budget constraints, collateral feasibility, market clearing,
-distribution mass, numerical boundaries, and interpolation or forecasting
-errors are checked separately.
+The HA fit is configured for 48,000 dates after a 500-date burn-in and prints separate
+within-state R-squared values for next mean assets and log prices. Its GIRF
+compares z=13 with z=12 from a common time-averaged asset distribution. The
+constrained-share panel displays the two population percentages. The separate
+3,000-date simulation shows its first 100 dates in the time-series panels.
+
+Independent HA Euler and feasibility diagnostics remain available in
+`src/ha_collateral_constraint/validation.jl`; the notebook does not run them.
 
 ## Interpretation
 
@@ -126,8 +144,8 @@ aggregate shock and mean assets. The simulation retains the full asset
 distribution, but households do not condition their forecasts on that entire
 distribution. Convergence of the projected forecasting rules therefore does
 not establish an exact full-distribution rational-expectations equilibrium.
-The current final candidate does not pass the notebook's 1% maximum-error
-screen; the remaining approximation errors are reported explicitly.
+High forecast R-squared values and a converged iteration are not a substitute
+for independent equilibrium and grid-accuracy checks.
 
 ## Scope and Extensions
 

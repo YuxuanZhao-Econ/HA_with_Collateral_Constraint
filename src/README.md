@@ -18,14 +18,16 @@ not establish accuracy of the full-distribution equilibrium.
 Function definitions belong here; the notebooks contain the model and algorithm
 explanations, experiment settings, function calls, and displayed results.
 
-Split files by responsibility, for example:
+The HA implementation separates economic and numerical work from presentation:
 
-- `parameters.jl`: parameter definitions.
-- `grids.jl`: asset grids and income transitions.
-- `household.jl`: household policies and borrowing constraints.
-- `distribution.jl`: distribution updates and aggregation.
-- `equilibrium.jl`: market clearing and equilibrium solution.
-- `plots.jl`: reusable plotting functions.
+- `model.jl` and `shocks25.jl`: primitives and grids.
+- `forecasts.jl`: 20-coefficient cubic H, tangent tails, implied prices, and constrained regression.
+- `households.jl`: household decisions and marginal values.
+- `equilibrium.jl`: market clearing, distribution simulation, and the outer iteration.
+- `impulse_responses.jl`: paired GIRF paths, conditional means, and CSV export.
+- `plots.jl`: figures and table display, using explicit arguments.
+- `cache.jl`: compatible equilibrium loading and saving.
+- `validation.jl`: optional diagnostics, separate from the notebook's presentation.
 
 Create additional files only when they contain an implementation. Add a
 `common/` directory only if multiple models need shared numerical tools.
@@ -35,5 +37,6 @@ The notebook should load that entry file relative to the activated project root.
 
 Local checks and exploratory variants belong in the Git-ignored `test/` or
 `experiments/` directories. Reusable implementations needed to run a public
-notebook belong in `src/`. Small exported summaries go in `results/`; temporary
-solver caches go in the ignored `tmp/` directory.
+notebook belong in `src/`. Small exported summaries go in `results/`. The HA
+notebook's reusable equilibrium cache goes in `Resources/ha_collateral_constraint/`,
+where generated `.jls` files are ignored. Temporary checks remain in `tmp/`.

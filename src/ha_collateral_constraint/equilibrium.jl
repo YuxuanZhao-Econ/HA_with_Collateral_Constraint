@@ -96,32 +96,6 @@ function simulate(m,hh,f;T=2400,burn=400,seed=20260925,F0=nothing,keep=0,
       z=path[burn+1:end],Ffinal=F,Faverage,snapshots,seed,T,burn)
 end
 
-function fit_forecasts(m,f,sim;ridge=0.002,smooth=0.001)
-    logP=copy(f.logP); H=copy(f.H)
-    counts=zeros(Int,m.nz)
-    for z in 1:m.nz
-        ids=findall(==(z),sim.z); counts[z]=length(ids)
-        length(ids)>=12 || error("Too few observations in aggregate state $z: $(length(ids))")
-        X=zeros(length(ids),m.nB)
-        for (row,t) in enumerate(ids)
-            j,w=bracket(m.B,sim.B[t]); X[row,j]=1-w; X[row,j+1]=w
-        end
-        D=zeros(m.nB-2,m.nB)
-        for j in 1:m.nB-2
-            D[j,j:j+2]=[1.0,-2.0,1.0]
-        end
-        # Local linear basis avoids polynomial extrapolation in rare states.
-        # A disclosed roughness penalty and old-rule prior identify unused nodes.
-        A=X'X+ridge*I+smooth*(D'D)
-        logP[:,z]=A\(X'*log.(sim.price[ids])+ridge*f.logP[:,z])
-        H[:,z]=A\(X'*sim.Bnext[ids]+ridge*f.H[:,z])
-        lo,hi=forecast_price_bounds(m,z)
-        logP[:,z]=clamp.(logP[:,z],lo,hi)
-        H[:,z]=clamp.(H[:,z],first(m.B)+1e-5,last(m.B)-1e-5)
-    end
-    (;grid=f.grid,logP,H),counts
-end
-
 function forecast_distance(m,a,b)
     ep=maximum(abs(log(price_forecast(a,z,B)/price_forecast(b,z,B))) for z in 1:m.nz for B in m.B)
     eb=maximum(abs(bond_forecast(a,z,B)-bond_forecast(b,z,B)) for z in 1:m.nz for B in m.B)
@@ -145,21 +119,21 @@ function within_state_r2(y,yhat,z,nz)
 end
 
 function solve_equilibrium(m;T=2400,burn=400,seed=20260925,maxiter=35,
-                           damping=0.25,tol=2e-4,initial=nothing,verbose=true)
-    f=initial===nothing ? initial_forecast(m) : regrid_forecast(m,initial)
+                           damping=0.25,tol=2e-4,ridge=0.002,forecast_breaks=nothing,verbose=true)
+    f=initial_forecast(m;forecast_breaks)
     history=NamedTuple[]; oldg=nothing; previous=Inf
     for it in 1:maxiter
         hhtol=it==1 ? 2e-8 : clamp(0.001previous,2e-8,2e-5)
         hh=solve_households(m,f;initial=oldg,tol=hhtol)
         sim=simulate(m,hh,f;T,burn,seed)
-        proposed,counts=fit_forecasts(m,f,sim)
+        proposed,counts=fit_forecast(m,f,sim;ridge)
         update=observed_forecast_distance(sim,f,proposed)
         # A candidate stopping point is always rechecked with tight households.
         if (update<tol || it==maxiter) && hhtol>2e-8
             hh=solve_households(m,f;initial=hh.g,tol=2e-8)
             hhtol=2e-8
             sim=simulate(m,hh,f;T,burn,seed)
-            proposed,counts=fit_forecasts(m,f,sim)
+            proposed,counts=fit_forecast(m,f,sim;ridge)
             update=observed_forecast_distance(sim,f,proposed)
         end
         global_update=forecast_distance(m,f,proposed)
@@ -177,8 +151,7 @@ function solve_equilibrium(m;T=2400,burn=400,seed=20260925,maxiter=35,
         if update<tol || it==maxiter
             return (;m,forecast=f,hh,simulation=sim,history,converged=update<tol)
         end
-        f=(;grid=f.grid,logP=(1-damping).*f.logP.+damping.*proposed.logP,
-             H=(1-damping).*f.H.+damping.*proposed.H)
+        f=damp_forecast(f,proposed,damping)
         oldg=hh.g
         previous=update
     end

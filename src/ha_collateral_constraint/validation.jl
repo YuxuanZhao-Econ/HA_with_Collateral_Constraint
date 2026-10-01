@@ -33,7 +33,8 @@ function forecast_diagnostics(sim,f)
     (;B_rmse=sqrt(mean(berr.^2)),B_max=maximum(abs.(berr)),
       price_rmse=sqrt(mean(perr.^2)),price_max=maximum(abs.(perr)),
       B_recursive_max=maximum(abs.(recursive)),
-      R2_B=1-sum(berr.^2)/sum((sim.Bnext.-mean(sim.Bnext)).^2))
+      R2_B=within_state_r2(sim.Bnext,sim.Bpred,sim.z,maximum(sim.z)),
+      R2_logP=within_state_r2(log.(sim.price),log.(sim.ppred),sim.z,maximum(sim.z)))
 end
 
 function path_diagnostics(m,hh,f,sim)
@@ -77,7 +78,7 @@ It measures economically relevant forecast/interpolation error, not merely the
 residual of the household equation used by the solver.
 """
 function equilibrium_euler_diagnostics(m,hh,f,sim;maxsnapshots=8,masscut=1e-8)
-    interior=Float64[]; weights=Float64[]; ineq=0.0; bindingmax=0.0; periods=0
+    interior=Float64[]; weights=Float64[]; ineq=0.0; periods=0
     for s in sim.snapshots[1:min(maxsnapshots,length(sim.snapshots))]
         v=clear_market(m,hh,f,s.F,s.z)
         keep=findall(i->s.F[v.active[i]]>masscut,eachindex(v.active))
@@ -99,7 +100,7 @@ function equilibrium_euler_diagnostics(m,hh,f,sim;maxsnapshots=8,masscut=1e-8)
             residual=(lhs-future[k])/lhs
             slack=v.pol.g[i,e]-collateral(m,s.z,m.e[e],v.price)
             if slack<1e-7
-                ineq=max(ineq,-residual); bindingmax=max(bindingmax,abs(residual))
+                ineq=max(ineq,-residual)
             else
                 push!(interior,abs(residual)); push!(weights,s.F[v.active[i]]*m.pe[e])
             end
@@ -109,20 +110,4 @@ function equilibrium_euler_diagnostics(m,hh,f,sim;maxsnapshots=8,masscut=1e-8)
     (;periods,points=length(interior),max_interior=maximum(interior;init=0.0),
       weighted_mean=isempty(weights) ? 0.0 : dot(interior,weights)/sum(weights),
       binding_inequality=ineq)
-end
-
-function forecast_guard_diagnostics(m,f,sim)
-    active=0
-    for t in 1:sim.T
-        z=sim.z[t]; j,w=bracket(m.B,sim.B[t]); lo,hi=forecast_price_bounds(m,z)
-        hit=false
-        for (k,weight) in ((j,1-w),(j+1,w))
-            weight>1e-10 || continue
-            hit |= f.logP[k,z]<=lo+1e-6 || f.logP[k,z]>=hi-1e-6 ||
-                   f.H[k,z]<=first(m.B)+2e-5 || f.H[k,z]>=last(m.B)-2e-5
-        end
-        active+=hit
-    end
-    (;share=active/sim.T,minimum_B=minimum(sim.B),maximum_B=maximum(sim.B),
-      minimum_forecast_B=minimum(sim.Bpred),maximum_forecast_B=maximum(sim.Bpred))
 end
