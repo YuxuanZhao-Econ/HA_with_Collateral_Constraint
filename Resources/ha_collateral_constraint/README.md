@@ -1,4 +1,12 @@
-# Fixed forecast breaks and local equilibrium cache
+# Fixed forecast breaks and local equilibrium caches
+
+`steady_state.jls` stores the deterministic aggregate equilibrium from Section 6:
+constant endowments yT=yN=1, IID individual income risk, household policies,
+the invariant inherited-asset distribution, the market-clearing price, stationary
+moments, and equilibrium residuals. `FORCE_COMPUTE_SS=false` loads a matching
+result; true recomputes it. Its signature covers preferences, individual grids
+and income risk, deterministic solver settings and source, Julia version, and
+dependencies. It is separate from the stochastic equilibrium and its cache.
 
 `forecast_breaks_gh5.csv` contains the state-specific 18 breakpoints for the
 20-coefficient cubic perceived law of motion. It is an input, not a generated

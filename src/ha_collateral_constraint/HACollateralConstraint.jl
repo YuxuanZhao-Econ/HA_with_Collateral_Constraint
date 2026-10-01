@@ -9,6 +9,7 @@ include("model.jl")
 include("forecasts.jl")
 include("households.jl")
 include("equilibrium.jl")
+include("steady_state.jl")
 include("validation.jl")
 include("impulse_responses.jl")
 include("cache.jl")
@@ -19,6 +20,7 @@ export parameters, model, initial_forecast, solve_households, solve_equilibrium,
        forecast_diagnostics, markdown_table, initial_distribution,
        price_forecast, bond_forecast, load_forecast_breaks, consumption_at_price, income_risk,
        equilibrium_euler_diagnostics, load_or_solve, generalized_irf, save_girf_csv,
+       solve_steady_state, load_or_solve_steady_state, plot_steady_state,
        showtable, plot_simulation, plot_household_policies, plot_aggregate_rule, plot_girf
 
 end

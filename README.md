@@ -52,6 +52,7 @@ Julia notebooks.
 
 - [notebooks/HA_Collateral_Constraint.ipynb](notebooks/HA_Collateral_Constraint.ipynb)
   - heterogeneous households with IID individual income risk and a 5×5 aggregate chain
+  - deterministic aggregate steady state, stationary distribution, and household policies
   - Euler time iteration with collateral constraints
   - market clearing and simulation of the full asset distribution
   - a 20-coefficient cubic next-mean-asset rule H(z,B), with endpoint tangent tails and prices implied by aggregate resources
@@ -72,7 +73,7 @@ Julia notebooks.
   - the current HA GIRF export and historical experiment outputs
 
 - `Resources/ha_collateral_constraint/`
-  - fixed forecast breakpoints, `forecast_breaks_gh5.csv`, and the reusable Julia equilibrium cache, `equilibrium_gh5_spline20_T48000.jls`
+  - fixed forecast breakpoints, `forecast_breaks_gh5.csv`, and separate deterministic (`steady_state.jls`) and stochastic (`equilibrium_gh5_spline20_T48000.jls`) Julia equilibrium caches
   - generated `.jls` files are kept locally and excluded from Git
 
 - `reference/`
@@ -87,7 +88,13 @@ Local checks, exploratory experiments, and temporary files belong in
 mixed-case variants, are excluded from Git and GitHub commits. Their contents
 remain on disk and are not required in a fresh clone.
 
-In Section 7 of the HA notebook, `FORCE_COMPUTE=false` loads a compatible cached
+Section 6 of the HA notebook solves a deterministic aggregate steady state,
+keeping both endowments at one while retaining IID individual income risk.
+It reports stationary averages, an asset CDF, and household saving and consumption
+policies. `FORCE_COMPUTE_SS=false` reuses its compatible local cache.
+Section 7 introduces the stochastic algorithm.
+
+In Section 8, `FORCE_COMPUTE=false` loads a compatible cached
 equilibrium or computes and saves one if needed. Set it to `true` to recompute.
 Compatibility checks cover the model, solver settings, Julia version, numerical
 source, and pinned dependencies. Editing figures does not invalidate the
@@ -111,7 +118,8 @@ collateral constraint, update consumption and bonds, and recompute equilibrium
 prices. The planner internalizes the effect of consumption on collateral
 prices and updates the constraint multiplier as well.
 
-The HA notebook follows a household-solution and aggregate-forecast iteration:
+After the deterministic reference equilibrium, the HA notebook follows a
+household-solution and aggregate-forecast iteration:
 
 1. Guess H(z,B), a fixed 20-coefficient cubic next-period mean-asset rule with
    tangent-line tails, and derive its price forecast

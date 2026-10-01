@@ -13,9 +13,10 @@ experiment settings, calls, and displayed results; function definitions live her
 | `forecasts.jl` | Fixed cubic forecast, tangent tails, and constrained coefficient regression |
 | `households.jl` | Household Euler time iteration and policies |
 | `equilibrium.jl` | Nontradable market clearing, distribution simulation, and KS iteration |
+| `steady_state.jl` | Constant-endowment household solution, invariant distribution, market-clearing price, and local cache |
 | `validation.jl` | Household, market, resource, and independent Euler diagnostics |
 | `impulse_responses.jl` | Paired generalized impulse responses, Monte Carlo errors, and CSV export |
-| `plots.jl` | Simulation, household-policy, aggregate-rule, and GIRF figures; table display |
+| `plots.jl` | Steady-state, simulation, household-policy, aggregate-rule, and GIRF figures; table display |
 | `cache.jl` | Load a compatible equilibrium or solve and save it |
 
 The aggregate forecast is next-period mean assets, `H(z,B)`. Each state has
@@ -50,19 +51,36 @@ There is no node-index second-difference penalty or post-fit clipping.
 ## Notebook workflow
 
 1. Section 5 activates the environment and includes `HACollateralConstraint.jl`.
-2. Section 7 constructs the grids and calls `load_or_solve`. The current
+2. Section 6 constructs the shared grids and calls `load_or_solve_steady_state`.
+   It fixes both aggregate endowments at one, retains IID individual risk,
+   and re-solves households without aggregate uncertainty. It displays
+   stationary averages, equilibrium residuals, saving and consumption policies,
+   and the invariant asset CDF. The result is cached in `steady_state.jls`;
+   `FORCE_COMPUTE_SS=true` recomputes it.
+3. Section 7 describes the stochastic numerical algorithm.
+4. Section 8 calls `load_or_solve`. The current
    settings are 48,000 observations, a 500-date burn-in, and an outer stopping
    threshold of 1e-3, checked with tightly solved household policies.
-3. Section 7.1 calls `simulate` for a separate 3,000-date path and
+5. Section 8.1 calls `simulate` for a separate 3,000-date path and
    `plot_simulation`, displaying the first 100 dates in the time-series panels.
-4. Section 7.2 calls `plot_household_policies(result, sim, z)` for z=13 and z=12.
-   Each figure uses the first saved date in its state and reports the fixed
-   mean assets, market-clearing price, and constrained share.
-5. Section 7.3 calls `plot_aggregate_rule` for H and the implied log price.
+6. Section 8.2 calls `plot_household_policies(result, z; B=B_policy)` for
+   z=13 and z=12 at the same explicitly chosen B=-0.94. It interpolates the
+   solved saving table and recovers consumption from the budget at the
+   implied forecast price. These policy slices require no simulated distribution.
+7. Section 8.3 calls `plot_aggregate_rule` for H and the implied log price.
    Panel titles count the final training-path observations; shading marks
    their conditional 1st–99th percentiles. Dotted vertical lines mark the fixed
    spline support endpoints; blue curves include the tangent tails.
-6. Section 8 calls `generalized_irf`, `plot_girf`, and `save_girf_csv`.
+8. Section 9 calls `generalized_irf`, `plot_girf`, and `save_girf_csv`.
+
+The deterministic equilibrium is solved on individual assets and income only.
+Household policy changes must be below 2e-10, invariant-distribution changes
+below 1e-12, and the nontradable market residual below 1e-9. All averages and
+the constrained share integrate over the stationary asset distribution and
+the current IID income probabilities. It is distinct from the stochastic
+economy's long-run average; the subsequent KS and GIRF initializations are
+unchanged. Adding this separate solver does not invalidate a compatible
+stochastic equilibrium cache.
 
 Plotting functions return figures. The notebook chooses filenames, saves the
 figures, and displays them. No plotting function reads notebook-global

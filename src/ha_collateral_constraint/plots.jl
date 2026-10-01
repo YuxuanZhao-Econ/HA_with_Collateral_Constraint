@@ -10,39 +10,76 @@ end
 showtable(headers, rows; digits=6) =
     display(MIME"text/html"(), Markdown.parse(markdown_table(headers, rows; digits)))
 
-"""Plot the simulated mean assets, prices, constrained share, and average asset CDF."""
+"""Show stationary saving, both consumption policies, and the inherited-asset CDF."""
+function plot_steady_state(ss)
+    m=ss.m
+    fig=Plots.plot(layout=(2,2),size=(1100,720))
+    colors=[:dodgerblue,:darkorange]
+    for e in 1:m.ne
+        label="epsilon = $(m.e[e])"; color=colors[mod1(e,length(colors))]
+        Plots.plot!(fig[1],m.b,ss.hh.g[:,e];label,color,
+                    xlabel="Inherited assets b",ylabel="Next assets b'")
+        Plots.hline!(fig[1],[collateral(m,1,m.e[e],ss.price)];label=false,color,linestyle=:dot)
+        Plots.plot!(fig[2],m.b,ss.hh.cT[:,e];label,color,
+                    xlabel="Inherited assets b",ylabel="Tradable consumption")
+        Plots.plot!(fig[3],m.b,ss.hh.cN[:,e];label,color,
+                    xlabel="Inherited assets b",ylabel="Nontradable consumption")
+    end
+    Plots.plot!(fig[1],m.b,m.b;label="45-degree line",color=:gray,linestyle=:dash)
+    Plots.plot!(fig[4],m.bf,cumsum(ss.F);label=false,seriestype=:steppost,
+                xlabel="Inherited assets b",ylabel="Stationary asset CDF",ylims=(0,1))
+    Plots.vline!(fig[4],[ss.B];label="Mean assets",color=:gray,linestyle=:dash)
+    occupied=findall(>(1e-12),ss.F)
+    lo=m.bf[first(occupied)]; hi=m.bf[last(occupied)]
+    pad=max(0.01,0.2*(hi-lo))
+    Plots.plot!(fig[4];xlims=(max(first(m.bf),lo-pad),min(last(m.bf),hi+pad)))
+    fig
+end
+
+"""Plot simulated assets, prices, constrained share, average asset CDF, and endowments."""
 function plot_simulation(m, sim; periods=1:min(500, sim.T))
-    fig = Plots.plot(layout=(2,2), size=(1100,720))
+    layout = Plots.@layout [a b; c d; e{0.28h}]
+    fig = Plots.plot(;layout, size=(1100,1000))
     Plots.plot!(fig[1], periods, sim.B[periods];
                 label="Actual B", ylabel="Mean assets", xlabel="Date")
     Plots.plot!(fig[2], periods, sim.price[periods];
                 label="Clearing price", ylabel="Nontradable price", xlabel="Date")
     Plots.plot!(fig[2], periods, sim.ppred[periods]; label="Forecast", linestyle=:dash)
     Plots.plot!(fig[3], periods, 100 .* sim.binding[periods];
-                label=false, ylabel="Constrained households (%)", xlabel="Date")
+                label=false, ylabel="Constrained households (%)", xlabel="Date",
+                ylims=(0,100))
     Plots.plot!(fig[4], m.bf, cumsum(sim.Faverage);
-                label=false, ylabel="Average asset CDF", xlabel="Inherited assets b",
+                label=false, ylabel="Time-averaged asset CDF", xlabel="Inherited assets b",
                 xlims=(-1.15,-0.35), ylims=(0,1))
+    Plots.plot!(fig[5], periods, m.yT[sim.z[periods]];
+                label="Tradable endowment", color=:dodgerblue,
+                ylabel="Endowment level", xlabel="Date",
+                title="Aggregate endowments", titlefontsize=11)
+    Plots.plot!(fig[5], periods, m.yN[sim.z[periods]];
+                label="Nontradable endowment", color=:darkorange, linestyle=:dash)
     fig
 end
 
 """
-Plot saving and tradable consumption at the first saved simulation date with state z.
-Hold its full distribution, mean assets, and clearing price fixed; vary b and epsilon.
+Plot the solved household policies at a fixed aggregate state (z, B).
+Interpolate the saved saving table and recover consumption at the implied price.
 """
-function plot_household_policies(result, sim, z; assets=range(-1.10,-0.35,length=220),
+function plot_household_policies(result, z; B, assets=range(-1.10,-0.35,length=220),
                                   verbose=true)
     m = result.m
-    snapshot_index = findfirst(x -> x.z == z, sim.snapshots)
-    isnothing(snapshot_index) && error("No saved simulation snapshot with z = $z")
-    ss = sim.snapshots[snapshot_index]
-    B = dot(m.bf, ss.F)
-    isapprox(B, ss.B; atol=1e-10) || error("Snapshot assets and mean are inconsistent")
-    market = clear_market(m, result.hh, result.forecast, ss.F, z)
-    policies = current_policies(m, market.M, z, market.price, assets)
+    1 <= z <= m.nz || throw(ArgumentError("Invalid aggregate state: $z"))
+    j,w = bracket(m.B,B)
+    price = price_forecast(result.forecast,z,B)
+    st = consumption_at_price(price,m.p)
+    saving = [(1-w)*interpolate(m.b,view(result.hh.g,:,e,j,z),b) +
+              w*interpolate(m.b,view(result.hh.g,:,e,j+1,z),b)
+              for b in assets, e in 1:m.ne]
+    cT = [(resources(m,b,m.e[e],z,price)-saving[i,e])/st.d
+          for (i,b) in enumerate(assets), e in 1:m.ne]
+    all(>(0),cT) || error("Interpolated saving leaves nonpositive consumption")
     if verbose
-        @printf("Fixed policy state: z = %d, B = %.5f, pN = %.5f, constrained share = %.2f%%, simulated date = %d\n",
-                z, B, market.price, 100*market.binding, ss.k)
+        @printf("Solved policy slice: z = %d, B = %.5f, implied pN = %.5f\n",
+                z, B, price)
     end
 
     fig = Plots.plot(layout=(1,2), size=(1100,400))
@@ -50,17 +87,17 @@ function plot_household_policies(result, sim, z; assets=range(-1.10,-0.35,length
     for e in 1:m.ne
         label = "epsilon = $(m.e[e])"
         color = colors[mod1(e, length(colors))]
-        Plots.plot!(fig[1], assets, policies.g[:,e]; label, color,
+        Plots.plot!(fig[1], assets, saving[:,e]; label, color,
                     xlabel="Inherited assets b", ylabel="Next assets b'")
-        Plots.hline!(fig[1], [collateral(m,z,m.e[e],market.price)];
+        Plots.hline!(fig[1], [collateral(m,z,m.e[e],price)];
                      label=false, color, linestyle=:dot)
-        Plots.plot!(fig[2], assets, policies.cT[:,e]; label, color,
+        Plots.plot!(fig[2], assets, cT[:,e]; label, color,
                     xlabel="Inherited assets b", ylabel="Tradable consumption")
     end
     Plots.plot!(fig[1], assets, assets;
                 label="45-degree line", color=:gray, linestyle=:dash)
     Plots.plot!(fig[1]; title="z = $z, B = $(round(B,digits=3))", titlefontsize=10)
-    Plots.plot!(fig[2]; title="Constrained share: $(round(100*market.binding,digits=1))%",
+    Plots.plot!(fig[2]; title="Implied pN = $(round(price,digits=4))",
                 titlefontsize=10)
     fig
 end
